@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#14132a">
+<title>致两千年后的你</title>
+<style>
+  :root {
+    --bg-1: #14132a;
+    --bg-2: #2a2150;
+    --bg-3: #0d0b1d;
+    --gold: #f2d087;
+    --gold-soft: #e6c07a;
+    --text-main: #f5efe2;
+    --text-dim: rgba(245, 239, 226, 0.62);
+    --card-bg: rgba(255, 255, 255, 0.06);
+    --card-border: rgba(255, 255, 255, 0.14);
+    --paper: #fbf4e4;
+    --paper-ink: #5a4a3c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    overflow-x: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    background: linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 55%, var(--bg-3) 100%);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #stars {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 20px 56px;
+    text-align: center;
+  }
+
+  /* ===== 标题 ===== */
+  .title {
+    font-family: "Georgia", "Songti SC", "STSong", "SimSun", serif;
+    font-size: 40px;
+    font-weight: 600;
+    letter-spacing: 6px;
+    color: var(--text-main);
+    text-shadow: 0 2px 24px rgba(242, 208, 135, 0.25);
+    margin-bottom: 10px;
+  }
+  .subtitle {
+    font-family: "Georgia", "Times New Roman", serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    opacity: 0.85;
+    text-transform: uppercase;
+    margin-bottom: 48px;
+  }
+
+  /* ===== 信封 ===== */
+  .envelope {
+    position: relative;
+    width: 150px;
+    height: 104px;
+    margin: 0 auto 44px;
+    perspective: 700px;
+  }
+  .envelope-body {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, #f7e9c9 0%, #e8d3a3 100%);
+    border-radius: 8px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    z-index: 1;
+  }
+  .envelope-body::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; width: 100%; height: 100%;
+    clip-path: polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%);
+    background: linear-gradient(180deg, #fdf3d8 0%, #efdcae 100%);
+    border-radius: 8px 8px 0 0;
+    z-index: 2;
+  }
+  .envelope-flap {
+    position: absolute;
+    left: 0; top: 0; width: 100%; height: 100%;
+    clip-path: polygon(0 0, 100% 0, 50% 48%);
+    background: linear-gradient(180deg, #f3dfae 0%, #e2c98f 100%);
+    border-radius: 8px 8px 0 0;
+    transform-origin: top center;
+    transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+    z-index: 4;
+  }
+  .seal {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -8%);
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #e9b06a, #b97c3d);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3), inset 0 0 0 3px rgba(255,255,255,0.18);
+    z-index: 5;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .seal::after {
+    content: "信";
+    font-family: "Songti SC", "STSong", serif;
+    font-size: 15px;
+    color: rgba(255, 248, 230, 0.95);
+  }
+  .envelope-letter-icon {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    font-size: 0;
+    width: 0; height: 0;
+  }
+
+  .envelope.open .envelope-flap {
+    transform: rotateX(178deg);
+  }
+  .envelope.open .seal {
+    transition: opacity 0.4s ease, transform 0.6s ease;
+    opacity: 0;
+    transform: translate(-50%, -140%);
+  }
+
+  /* ===== 倒计时 ===== */
+  .countdown {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 26px;
+  }
+  .unit {
+    width: 78px;
+    padding: 16px 4px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  }
+  .unit span {
+    display: block;
+    font-family: "Georgia", "Times New Roman", serif;
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 18px rgba(242, 208, 135, 0.35);
+  }
+  .unit label {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+  }
+
+  .hint {
+    display: none;
+  }
+  .hint strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  .foot {
+    position: fixed;
+    bottom: 22px;
+    left: 0; right: 0;
+    z-index: 2;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: rgba(245, 239, 226, 0.35);
+  }
+
+  /* ===== 信纸（解锁后） ===== */
+  .stage.unlocked {
+    width: 100%;
+    max-width: 460px;
+    animation: none;
+  }
+  .letter-paper {
+    position: relative;
+    background: var(--paper);
+    color: var(--paper-ink);
+    border-radius: 6px;
+    padding: 40px 30px 36px;
+    text-align: left;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 2px 0 rgba(255,255,255,0.4) inset;
+    transform-origin: top center;
+    animation: unfold 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .letter-paper::before {
+    content: "";
+    position: absolute;
+    top: -10px; left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #efe3c8;
+  }
+  .letter-head {
+    font-family: "Songti SC", "STSong", "SimSun", serif;
+    font-size: 13px;
+    letter-spacing: 5px;
+    text-align: center;
+    color: #a28c6a;
+    margin-bottom: 26px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed #d8c7a6;
+  }
+  .letter-body {
+    font-family: "Songti SC", "STSong", "SimSun", serif;
+    font-size: 16.5px;
+    line-height: 2.1;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .letter-sign {
+    margin-top: 30px;
+    text-align: right;
+    font-family: "Songti SC", "STSong", "SimSun", serif;
+    font-size: 15px;
+    color: #8a755a;
+  }
+
+  @keyframes unfold {
+    from { opacity: 0; transform: translateY(48px) scale(0.92); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* 锁定态退出动画 */
+  .stage.locked.fade-out {
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    opacity: 0;
+    transform: translateY(-20px) scale(0.96);
+  }
+
+  @media (max-width: 380px) {
+    .title { font-size: 32px; letter-spacing: 5px; }
+    .unit { width: 66px; }
+    .unit span { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+  <canvas id="stars"></canvas>
+
+  <div class="container">
+    <h1 class="title">致两千年后的你</h1>
+    <p class="subtitle">二千年後の君へ</p>
+
+    <!-- 锁定态：倒计时 -->
+    <div class="stage locked" id="lockedStage">
+      <div class="envelope" id="envelope">
+        <div class="envelope-body"></div>
+        <div class="envelope-flap"></div>
+        <div class="seal"></div>
+        <div class="envelope-letter-icon"></div>
+      </div>
+
+      <div class="countdown" id="countdown">
+        <div class="unit"><span id="days">00</span><label>天</label></div>
+        <div class="unit"><span id="hours">00</span><label>时</label></div>
+        <div class="unit"><span id="minutes">00</span><label>分</label></div>
+        <div class="unit"><span id="seconds">00</span><label>秒</label></div>
+      </div>
+
+      <p class="hint">这封信将在 <strong id="unlockDate">2026年12月7日</strong> 解锁</p>
+    </div>
+
+    <!-- 解锁态：信纸 -->
+    <div class="stage unlocked" id="unlockedStage" hidden>
+      <div class="letter-paper">
+        <div class="letter-head">致 两 千 年 后 的 你</div>
+        <div class="letter-body" id="letterBody"></div>
+        <div class="letter-sign">—— <span id="signature"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="foot">写 给 未 来 的 你</p>
+
+<script>
+(function () {
+  /* ============================================================
+   * 一、这里填写你写给对方的信（替换下面的内容即可）
+   * ============================================================ */
+  var GREETING = "致我们的未来";
+
+  // 信件内容加密存储：防止公开仓库源码里直接看到信的明文，解锁时自动解密显示（体验不变）
+  function decryptLetter(enc) {
+    var key = "mikasa2000";
+    var raw = atob(enc);
+    var bytes = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) {
+      bytes[i] = raw.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+    }
+    return new TextDecoder("utf-8").decode(bytes);
+  }
+
+  var LETTER = decryptLetter("iO/yhsj427KT1NXDg97rhYq916/IgOryl92o1qifidLrhcrp1JCH1cD5jPv3h66a1q3IiuvjeWvXtZvW8eGM+/eHhYHVrN6O9/6U+7bVlY2K6saE1tzVs53T7euP2vmElpnWqMKN0+KWxaffjLyL4fqJydvXrJjV1+OP2fmOjrzWtc+P7sOV9IDVt4qK0vKD8/3UuKHU1sWJ4e6EtKnUiO2M2+CX3pPSsKSP6f+Ew9zVnpHW5fiO1sGGib/Xr8iA6vKc3b7SsKyL4fqFyM3QsK3Y0vCP2deFiprVnfqG1+2X2K3YnoiJ0eaFz/vXtr3W8eCP2/WCsrI6OojsxoTK1dGwstjS8I/Z14WKmtWd+obX7ZXpo9ekmInT7YTN6daJtdbk5I7M1YWOqtWe7o7x5ZbptNm3v47p6YXI79ubqNTVxIz794mHgNWL54bX7ZbpgtWUl4jEzYbp5deMstXx2YTd/4S0vdW43YHU+JbbldWvvojR6Ybp5dSnmdnG8Y7Sw4SgvNap94zW85T7ttWsgIT66oTh7deAv9f53ILIx46OvNa4/I3QzZXruNWNjIvEz4fv4dutotbbwIjh8oeusNecxY/g+JDhs9SJr4v164bv/tqfqtf37Y7Yx4S/vt+M4YDo3JT0q9eLqYnT7YTc2NSmidPt62Frm+G+1rihi+PhhN3i14y01NXLj9v1grKy1Ijgj/POlf6i1Iiwi8XKhcno16CF39Hljfnch7qh1Ijtj8fAlc2T16q0he3Vh8P10bCx1NXpjc3Sh56R16rpjvfql9m/2Jexjunqhcvh1JyR1sHIjev5hJeJ16rpjNTim9yd1Y2ji+H7huPn1Lmw1dD6jOXFgrKy2I/0jdH6nN2+1rihhOrWid3F3Yy81NT2guLOhYqw1Z73jdf7lv2a2I+piNnqhczA1Lmj1dHpjuj+h6aJ1r7kiuvjeWvUubDU1syD3uqEgrHUj8yG1+2V6aPUiL2Fxt+D8/3Xn4nU1eSD1MSDsq3TsO+MxNiX2b/YhYeL8cSJzPnVi6nY0u6O78iGqLTfjOGB6+2V6aPWs4OFxt+G6eXdjLzW9caN/dmHr5XTsO9jYYTV49SurNbxw4381o6OvNa4/I3QzZveqtizjYTu5ofl0dqFgNXl2Y/Z84mHh9Kw+Yvr9XmHuqHUjPeM08eU/LLUiLCJ0cGFy+zWiLDWzd6M+/eHuqHfjOGA7OyV94LYnpSFxu2FzsHRsLLU1eSO5/6Hqp/Zss6N08ubz5vUjZCK3cSFyefaj6jYy+iN6MyHvJXWuPyP6OSU2pjXqrSJ09GOz+3WiL3V6+SN+dyIsJPUiMeP4euX3JLWpI6F1vCEzOLajZ/Z6uWI4fKEv4TXrOaN0+ybxrPUjZCIzv+EwunVqrTU19OI4fGHuqHUjPeO5OyV4q7fjLyK5uaH8P3XuIDZ6OSO3+SFirrUjc2P8N+U2r3Xi6mF1uyG6eXUn7/U1emNzdKHrorUjPeK6+N5a9eWstbz9Y392Yevld+M4Y/j8JfanteLuIrA3YT8y9qzjdX97YPm2YScudWV0Ivr9ZHhpjrZss6N0v6W37rVlY2O6emJw8PagJLU0MmC+NmHuqHYhd2B1Oab3qvVtZ2I0N+C8+PWjZDYw8CN6eKGnpzUiO2Px8CU/a3WnZOL8eWG6tzdjKrX5diP2fOFiprUiteG1+2V+Z3VnZaJ1fGE9unVrLvYyuiOxMqOjrzYsOGN0+yV+Z3Vv5qK9eCJ1ODat5rV2tiI4fGHuqHUjPeM08eU/LLYj6mI7MaEytXUpanU0fON6eKGqLTUiPGBzt6c3b7VvouL4fuFy9vUq4TVyNSM+/eFiIrfjOGM5dqV67jWvpWJ0eCH7sTVqrTY2saE3f+FirDWnciPxsSb1ILVlY2O6elreYmyvNSI4I7FwJX9mNatlYvxxITgy9aIsNTVw4Td/4e6odmz0I3T7JbxvNaypI7p6WuW+pLUiIqF1vKE9szXiYTW9caM/eyGqLTTsO+A6cKX26nXnKGL8cSG7/7VqrTf0eWM/c+HgZrUifKP886U/a3XqrSC1eeI8cLWiqvYw9mO3vWIsY3Vh9+O0O6a9I3Yj6uJ0+2H+/DVqrTZx8GOxceItbzTsO+B6+2V6aPWnZSI4dCH3sLXrJjV7POM+/eHponVv/WG1+2X2K3WqJ+K9fSG6eXQsKTS7f2P2f6FiorUiuuB2+Cc3b7WqJ+L4fqFy+zUtI/W6eaO4OmEqa7Zss6N08uV+ozXi7+Fx8KE1tjanpjV4+WM+/eJtZrVh9yK6+N5a9S5sNTWzITd/4eumtatyI7x5ZXpo9SLnI/p/4Pz9TjVlrKL9/eJzPnas43Z6uSC4dGOjrzWtNKA6cKV9oTXqrSL4fqFyM3djLzZ7tSNzueGvIDVrMWP8NWWxI/TsLJnjM3jlf+u1Ii9iO/mhujZ2pex39Hlj9jsh7aP1I3NjPfJl9yS2LeaiN7ahunl2oef1NXjhN3/hYq31IrmgMrbmuCw07CyZ2OD0dGJgpLUjc2K6+N5hYuv2IDPgdvDmuOR1IiagtXnh97C16yY1NbnjODDhrGc2bfhhtftmua/1qaAisLyicbW1K2V1/ftg+bZhIWB07Dv");
+
+  var SIGNATURE = "2026年8月19日";   // 落款日期
+
+  /* ============================================================
+   * 二、倒计时目标日期：默认「今年 12 月 7 日 00:00」
+   *     若年份已过，会自动顺延到下一年。
+   *     若想指定某一年，把下面这行注释打开并改成你的日期：
+   * ============================================================ */
+  function getTarget() {
+    // 手动指定（去掉下一行注释即可生效）：
+    // return new Date("2026-12-07T00:00:00+08:00");
+
+    var now = new Date();
+    var target = new Date(now.getFullYear(), 11, 7, 0, 0, 0); // 12 月 7 日（月从 0 起，11=12月）
+    if (now >= target) {
+      target = new Date(now.getFullYear() + 1, 11, 7, 0, 0, 0);
+    }
+    return target;
+  }
+
+  // 调试：URL 加 ?preview=1 时，把倒计时缩到 10 秒，方便预览解锁效果
+  var isPreview = /[?&]preview=1/.test(location.search);
+  var TARGET = isPreview ? new Date(Date.now() + 10 * 1000) : getTarget();
+
+  // 演示：URL 加 ?demo=1 时，跳过倒计时，直接显示信纸内容
+  var isDemo = /[?&]demo=1/.test(location.search);
+
+  /* ============================================================
+   * 三、渲染与倒计时逻辑（一般无需改动）
+   * ============================================================ */
+  var lockedStage = document.getElementById("lockedStage");
+  var unlockedStage = document.getElementById("unlockedStage");
+  var envelope = document.getElementById("envelope");
+  var elDays = document.getElementById("days");
+  var elHours = document.getElementById("hours");
+  var elMinutes = document.getElementById("minutes");
+  var elSeconds = document.getElementById("seconds");
+  var elUnlockDate = document.getElementById("unlockDate");
+  var letterBody = document.getElementById("letterBody");
+  var signatureEl = document.getElementById("signature");
+
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+  function fmtDate(d) {
+    return d.getFullYear() + "年" + (d.getMonth() + 1) + "月" + d.getDate() + "日";
+  }
+
+  // 填信件内容
+  letterBody.textContent = GREETING + "\n\n" + LETTER;
+  signatureEl.textContent = SIGNATURE;
+  elUnlockDate.textContent = fmtDate(TARGET);
+
+  function update() {
+    var diff = TARGET.getTime() - Date.now();
+    if (diff <= 0) {
+      unlock();
+      return;
+    }
+    var s = Math.floor(diff / 1000);
+    var d = Math.floor(s / 86400);
+    var h = Math.floor((s % 86400) / 3600);
+    var m = Math.floor((s % 3600) / 60);
+    var sec = s % 60;
+    elDays.textContent = pad(d);
+    elHours.textContent = pad(h);
+    elMinutes.textContent = pad(m);
+    elSeconds.textContent = pad(sec);
+  }
+
+  function unlock() {
+    if (unlockedStage.hidden === false) return; // 已解锁
+    // 1) 信封盖子翻开
+    envelope.classList.add("open");
+    // 2) 信封动画后，锁定态淡出
+    setTimeout(function () {
+      lockedStage.classList.add("fade-out");
+    }, 650);
+    // 3) 展示信纸
+    setTimeout(function () {
+      lockedStage.style.display = "none";
+      unlockedStage.hidden = false;
+    }, 1250);
+  }
+
+  if (isDemo) {
+    // 演示模式：直接展示信纸
+    lockedStage.style.display = "none";
+    unlockedStage.hidden = false;
+  } else {
+    update();
+    setInterval(update, 1000);
+  }
+
+  /* ============================================================
+   * 四、星空背景
+   * ============================================================ */
+  var canvas = document.getElementById("stars");
+  var ctx = canvas.getContext("2d");
+  var stars = [];
+  var W, H;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    stars = [];
+    var count = Math.floor((W * H) / 9000);
+    for (var i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.4 + 0.3,
+        a: Math.random() * 0.7 + 0.3,
+        sp: Math.random() * 0.02 + 0.005,
+        ph: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  function drawStars(t) {
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < stars.length; i++) {
+      var st = stars[i];
+      var alpha = st.a * (0.5 + 0.5 * Math.sin(t * st.sp + st.ph));
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(245, 240, 230, " + alpha.toFixed(3) + ")";
+      ctx.fill();
+    }
+  }
+
+  resize();
+  window.addEventListener("resize", resize);
+
+  (function loop(t) {
+    drawStars(t || 0);
+    requestAnimationFrame(loop);
+  })();
+})();
+</script>
+</body>
+</html>
